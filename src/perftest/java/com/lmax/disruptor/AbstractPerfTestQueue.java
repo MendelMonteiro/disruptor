@@ -16,30 +16,45 @@
 package com.lmax.disruptor;
 
 
+import java.io.PrintStream;
+import java.nio.file.Path;
+
 public abstract class AbstractPerfTestQueue
 {
     public static final int RUNS = 7;
 
     protected void testImplementations()
-        throws Exception
     {
-        final int availableProcessors = Runtime.getRuntime().availableProcessors();
-        if (getRequiredProcessorCount() > availableProcessors)
-        {
-            System.out.print(
-                "*** Warning ***: your system has insufficient processors to execute the test efficiently. ");
-            System.out.println(
-                "Processors required = " + getRequiredProcessorCount() + " available = " + availableProcessors);
+        try {
+            String testName = this.getClass().getSimpleName();
+
+            final int availableProcessors = Runtime.getRuntime().availableProcessors();
+            if (getRequiredProcessorCount() > availableProcessors) {
+                System.out.print(
+                        "*** Warning ***: your system has insufficient processors to execute the test efficiently. ");
+                System.out.println(
+                        "Processors required = " + getRequiredProcessorCount() + " available = " + availableProcessors);
+            }
+
+            long[] queueOps = new long[RUNS];
+
+            System.out.println("Starting Queue tests");
+            long totalOpsPerSecond = 0;
+            for (int i = 0; i < RUNS; i++) {
+                System.gc();
+                queueOps[i] = runQueuePass();
+                totalOpsPerSecond += queueOps[i];
+                System.out.format("Run %d, BlockingQueue=%,d ops/sec%n", i, Long.valueOf(queueOps[i]));
+            }
+
+            Path totalsPath = AbstractPerfTestDisruptor.getTotalsPath();
+            PrintStream totals = AbstractPerfTestDisruptor.getAppendStream(totalsPath);
+            totals.format("%s,%d\n", testName, totalOpsPerSecond / RUNS);
+            totals.close();
         }
-
-        long[] queueOps = new long[RUNS];
-
-        System.out.println("Starting Queue tests");
-        for (int i = 0; i < RUNS; i++)
+        catch (Exception ex)
         {
-            System.gc();
-            queueOps[i] = runQueuePass();
-            System.out.format("Run %d, BlockingQueue=%,d ops/sec%n", i, Long.valueOf(queueOps[i]));
+            System.out.println(ex);
         }
     }
 

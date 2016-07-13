@@ -16,29 +16,69 @@
 package com.lmax.disruptor;
 
 
+import java.io.IOException;
+import java.io.PrintStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.StandardOpenOption;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+
 public abstract class AbstractPerfTestDisruptor
 {
     public static final int RUNS = 7;
 
-    protected void testImplementations()
-        throws Exception
+    public void testImplementations()
     {
-        final int availableProcessors = Runtime.getRuntime().availableProcessors();
-        if (getRequiredProcessorCount() > availableProcessors)
-        {
-            System.out.print("*** Warning ***: your system has insufficient processors to execute the test efficiently. ");
-            System.out.println("Processors required = " + getRequiredProcessorCount() + " available = " + availableProcessors);
-        }
+        try {
 
-        long[] disruptorOps = new long[RUNS];
+            String testName = this.getClass().getSimpleName();
+            String time = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH-mm-ss"));
+            PrintStream out = new PrintStream(Files.newOutputStream(Paths.get(String.format("%s-%s", testName, time))));
 
-        System.out.println("Starting Disruptor tests");
-        for (int i = 0; i < RUNS; i++)
-        {
-            System.gc();
-            disruptorOps[i] = runDisruptorPass();
-            System.out.format("Run %d, Disruptor=%,d ops/sec%n", i, Long.valueOf(disruptorOps[i]));
+            final int availableProcessors = Runtime.getRuntime().availableProcessors();
+            if (getRequiredProcessorCount() > availableProcessors)
+            {
+                out.print("*** Warning ***: your system has insufficient processors to execute the test efficiently. ");
+                out.println("Processors required = " + getRequiredProcessorCount() + " available = " + availableProcessors);
+            }
+
+            long[] disruptorOps = new long[RUNS];
+
+            out.format("Starting Disruptor tests for %s\n", testName);
+            long totalOpsPerSecond = 0;
+            for (int i = 0; i < RUNS; i++)
+            {
+                System.gc();
+                long start = System.currentTimeMillis();
+                disruptorOps[i] = runDisruptorPass();
+                totalOpsPerSecond += disruptorOps[i];
+                out.format("Run=%d, Disruptor(ops/sec)=%,d, Duration(ms)=%,d\n", i, Long.valueOf(disruptorOps[i]), System.currentTimeMillis() - start);
+            }
+            out.close();
+
+            Path totalsPath = getTotalsPath();
+            PrintStream totals = getAppendStream(totalsPath);
+            totals.format("%s,%d\n", testName, totalOpsPerSecond / RUNS);
+            totals.close();
         }
+        catch (Exception ex)
+        {
+            System.out.println(ex);
+        }
+    }
+
+    public static Path getTotalsPath() {
+        String hour = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH"));
+        return Paths.get(String.format("Totals-%s.csv", hour));
+    }
+
+    public static PrintStream getAppendStream(Path totalsPath) throws IOException {
+        if (!Files.exists(totalsPath)) {
+            Files.createFile(totalsPath);
+        }
+        return new PrintStream(Files.newOutputStream(totalsPath, StandardOpenOption.APPEND));
     }
 
     public static void printResults(final String className, final long[] disruptorOps, final long[] queueOps)
@@ -46,7 +86,7 @@ public abstract class AbstractPerfTestDisruptor
         for (int i = 0; i < RUNS; i++)
         {
             System.out.format("%s run %d: BlockingQueue=%,d Disruptor=%,d ops/sec\n",
-                              className, Integer.valueOf(i), Long.valueOf(queueOps[i]), Long.valueOf(disruptorOps[i]));
+                    className, Integer.valueOf(i), Long.valueOf(queueOps[i]), Long.valueOf(disruptorOps[i]));
         }
     }
 
