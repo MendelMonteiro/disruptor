@@ -60,7 +60,7 @@ public abstract class AbstractPerfTestDisruptor
 
             Path totalsPath = getTotalsPath();
             PrintStream totals = getAppendStream(totalsPath);
-            totals.format("%s,%d\n", testName, totalOpsPerSecond / RUNS);
+            totals.format("%s,%s,%d\n", LocalDateTime.now().format(DateTimeFormatter.ofPattern("HH-mm-ss")), testName, totalOpsPerSecond / RUNS);
             totals.close();
         }
         catch (Exception ex)
@@ -70,7 +70,7 @@ public abstract class AbstractPerfTestDisruptor
     }
 
     public static Path getTotalsPath() {
-        String hour = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH"));
+        String hour = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd"));
         return Paths.get(String.format("Totals-%s.csv", hour));
     }
 
