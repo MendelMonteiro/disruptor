@@ -51,7 +51,7 @@ public abstract class AbstractPerfTestQueue
 
             Path totalsPath = AbstractPerfTestDisruptor.getTotalsPath();
             PrintStream totals = AbstractPerfTestDisruptor.getAppendStream(totalsPath);
-            totals.format("%s,%s,%d\n", LocalDateTime.now().format(DateTimeFormatter.ofPattern("HH-mm-ss")), testName, totalOpsPerSecond / RUNS);
+            totals.format("%s,%s,%d\n", LocalDateTime.now().format(DateTimeFormatter.ofPattern("HH:mm:ss")), testName, totalOpsPerSecond / RUNS);
             totals.close();
         }
         catch (Exception ex)
