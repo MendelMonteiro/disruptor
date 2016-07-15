@@ -19,7 +19,7 @@ import org.junit.Assert;
 
 public abstract class AbstractPerfTestQueueVsDisruptor
 {
-    public static final int RUNS = 3;
+    public static final int RUNS = 5;
 
     protected void testImplementations()
         throws Exception
@@ -34,7 +34,7 @@ public abstract class AbstractPerfTestQueueVsDisruptor
         long queueOps[] = new long[RUNS];
         long disruptorOps[] = new long[RUNS];
 
-        if ("true".equalsIgnoreCase(System.getProperty("com.lmax.runQueueTests", "true")))
+        /*if ("true".equalsIgnoreCase(System.getProperty("com.lmax.runQueueTests", "true")))
         {
             for (int i = 0; i < RUNS; i++)
             {
@@ -42,8 +42,7 @@ public abstract class AbstractPerfTestQueueVsDisruptor
                 queueOps[i] = runQueuePass();
                 System.out.println("Completed BlockingQueue run " + i);
             }
-
-        }
+        }*/
 
         for (int i = 0; i < RUNS; i++)
         {
@@ -53,11 +52,10 @@ public abstract class AbstractPerfTestQueueVsDisruptor
         }
 
         printResults(getClass().getSimpleName(), disruptorOps, queueOps);
-
-        for (int i = 0; i < RUNS; i++)
+        /*for (int i = 0; i < RUNS; i++)
         {
             Assert.assertTrue("Performance degraded", disruptorOps[i] > queueOps[i]);
-        }
+        }*/
     }
 
     public static void printResults(final String className, final long[] disruptorOps, final long[] queueOps)

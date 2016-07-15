@@ -157,4 +157,10 @@ public final class OnePublisherToThreeWorkerPoolThroughputTest
 
         return sumJobs;
     }
+
+    public static void main(String[] args) throws Exception
+    {
+        new OnePublisherToThreeWorkerPoolThroughputTest().testImplementations();
+        System.exit(0);
+    }
 }

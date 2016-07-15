@@ -201,4 +201,10 @@ public final class ThreePublisherToOneProcessorSequencedThroughputTest extends A
 
         return opsPerSecond;
     }
+
+    public static void main(String[] args) throws Exception
+    {
+        new ThreePublisherToOneProcessorSequencedThroughputTest().testImplementations();
+        System.exit(0);
+    }
 }

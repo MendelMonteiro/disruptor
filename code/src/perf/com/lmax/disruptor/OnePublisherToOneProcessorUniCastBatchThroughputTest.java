@@ -110,11 +110,10 @@ public final class OnePublisherToOneProcessorUniCastBatchThroughputTest extends 
     }
 
     @Override
-    protected long runDisruptorPass() throws InterruptedException
-    {
+    protected long runDisruptorPass() throws InterruptedException, ExecutionException {
         final CountDownLatch latch = new CountDownLatch(1);
         handler.reset(latch, batchEventProcessor.getSequence().get() + ITERATIONS);
-        EXECUTOR.submit(batchEventProcessor);
+        Future<?> processor = EXECUTOR.submit(batchEventProcessor);
 
         final int batchSize = 10;
         final BatchDescriptor batchDescriptor = ringBuffer.newBatchDescriptor(batchSize);
@@ -136,9 +135,16 @@ public final class OnePublisherToOneProcessorUniCastBatchThroughputTest extends 
 
         long opsPerSecond = (ITERATIONS * 1000L) / (System.currentTimeMillis() - start);
         batchEventProcessor.halt();
+        processor.get();
 
         Assert.assertEquals(expectedResult, handler.getValue());
 
         return opsPerSecond;
+    }
+
+    public static void main(String[] args) throws Exception
+    {
+        new OnePublisherToOneProcessorUniCastBatchThroughputTest().testImplementations();
+        System.exit(0);
     }
 }

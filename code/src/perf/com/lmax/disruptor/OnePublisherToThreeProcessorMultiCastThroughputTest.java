@@ -228,4 +228,10 @@ public final class OnePublisherToThreeProcessorMultiCastThroughputTest extends A
 
         return opsPerSecond;
     }
+
+    public static void main(String[] args) throws Exception
+    {
+        new OnePublisherToThreeProcessorMultiCastThroughputTest().testImplementations();
+        System.exit(0);
+    }
 }

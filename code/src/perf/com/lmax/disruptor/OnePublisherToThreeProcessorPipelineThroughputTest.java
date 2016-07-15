@@ -229,4 +229,10 @@ public final class OnePublisherToThreeProcessorPipelineThroughputTest extends Ab
 
         return opsPerSecond;
     }
+
+    public static void main(String[] args) throws Exception
+    {
+        new OnePublisherToThreeProcessorPipelineThroughputTest().testImplementations();
+        System.exit(0);
+    }
 }

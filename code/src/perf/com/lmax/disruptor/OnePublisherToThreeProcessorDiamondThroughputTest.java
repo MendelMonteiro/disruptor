@@ -241,4 +241,10 @@ public final class OnePublisherToThreeProcessorDiamondThroughputTest extends Abs
 
         return opsPerSecond;
     }
+
+    public static void main(String[] args) throws Exception
+    {
+        new OnePublisherToThreeProcessorDiamondThroughputTest().testImplementations();
+        System.exit(0);
+    }
 }

@@ -168,4 +168,10 @@ public class OnePublisherToOneProcessorUniCastRawThroughputTest extends Abstract
             }
         }
     }
+
+    public static void main(String[] args) throws Exception
+    {
+        new OnePublisherToOneProcessorUniCastRawThroughputTest().testImplementations();
+        System.exit(0);
+    }
 }

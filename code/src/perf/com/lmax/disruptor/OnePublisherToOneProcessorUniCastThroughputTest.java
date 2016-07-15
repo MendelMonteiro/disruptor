@@ -150,4 +150,10 @@ public final class OnePublisherToOneProcessorUniCastThroughputTest extends Abstr
 
         return opsPerSecond;
     }
+
+    public static void main(String[] args) throws Exception
+    {
+        new OnePublisherToOneProcessorUniCastThroughputTest().testImplementations();
+        System.exit(0);
+    }
 }
