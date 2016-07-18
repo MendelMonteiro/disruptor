@@ -35,7 +35,7 @@ public abstract class AbstractPerfTestDisruptor
 
             String testName = this.getClass().getSimpleName();
             String time = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH-mm-ss"));
-            PrintStream out = new PrintStream(Files.newOutputStream(Paths.get(String.format("%s-%s", testName, time))));
+            PrintStream out = new PrintStream(Files.newOutputStream(Paths.get(String.format("%s-%s.txt", testName, time))));
 
             final int availableProcessors = Runtime.getRuntime().availableProcessors();
             if (getRequiredProcessorCount() > availableProcessors)
