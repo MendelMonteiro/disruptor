@@ -34,6 +34,8 @@ public class EventPoller<T>
 
     public PollState poll(final Handler<T> eventHandler) throws Exception
     {
+        final BatchStartAware batchStartAware = (eventHandler instanceof BatchStartAware) ? (BatchStartAware) eventHandler : null;
+
         final long currentSequence = sequence.get();
         long nextSequence = currentSequence + 1;
         final long availableSequence = sequencer.getHighestPublishedSequence(nextSequence, gatingSequence.get());
@@ -45,6 +47,11 @@ public class EventPoller<T>
 
             try
             {
+                if (batchStartAware != null)
+                {
+                    batchStartAware.onBatchStart(availableSequence - nextSequence + 1);
+                }
+
                 do
                 {
                     final T event = dataProvider.get(nextSequence);

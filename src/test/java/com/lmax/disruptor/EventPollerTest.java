@@ -16,13 +16,7 @@ public class EventPollerTest
     {
         final Sequence gatingSequence = new Sequence();
         final SingleProducerSequencer sequencer = new SingleProducerSequencer(16, new BusySpinWaitStrategy());
-        final EventPoller.Handler<Object> handler = new EventPoller.Handler<Object>()
-        {
-            public boolean onEvent(Object event, long sequence, boolean endOfBatch) throws Exception
-            {
-                return false;
-            }
-        };
+        final PollEventHandler handler = new PollEventHandler();
 
         final Object[] data = new Object[16];
         final DataProvider<Object> provider = new DataProvider<Object>()
@@ -45,6 +39,8 @@ public class EventPollerTest
 
         gatingSequence.incrementAndGet();
         assertThat(poller.poll(handler), is(PollState.PROCESSING));
+
+        assertThat(handler.batchStarted, is(true));
     }
 
     @Test
@@ -88,5 +84,22 @@ public class EventPollerTest
         poller.poll(handler);
 
         assertThat(events.size(), is(4));
+    }
+
+    private class PollEventHandler implements EventPoller.Handler, BatchStartAware
+    {
+        private boolean batchStarted = false;
+
+        @Override
+        public void onBatchStart(long batchSize)
+        {
+            batchStarted = true;
+        }
+
+        @Override
+        public boolean onEvent(Object event, long sequence, boolean endOfBatch) throws Exception
+        {
+            return true;
+        }
     }
 }
